@@ -1,0 +1,96 @@
+[
+ {
+  "InstFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/picorv32.v",
+  "InstLine" : 2174,
+  "InstName" : "picorv32_regs",
+  "ModuleFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/picorv32.v",
+  "ModuleLine" : 2174,
+  "ModuleName" : "picorv32_regs"
+ },
+ {
+  "InstFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/picorv32.v",
+  "InstLine" : 2517,
+  "InstName" : "picorv32_axi",
+  "ModuleFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/picorv32.v",
+  "ModuleLine" : 2517,
+  "ModuleName" : "picorv32_axi",
+  "SubInsts" : [
+   {
+    "InstFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/picorv32.v",
+    "InstLine" : 2619,
+    "InstName" : "axi_adapter",
+    "ModuleFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/picorv32.v",
+    "ModuleLine" : 2731,
+    "ModuleName" : "picorv32_axi_adapter"
+   },
+   {
+    "InstFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/picorv32.v",
+    "InstLine" : 2674,
+    "InstName" : "picorv32_core",
+    "ModuleFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/picorv32.v",
+    "ModuleLine" : 62,
+    "ModuleName" : "picorv32"
+   }
+  ]
+ },
+ {
+  "InstFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/picorv32.v",
+  "InstLine" : 2815,
+  "InstName" : "picorv32_wb",
+  "ModuleFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/picorv32.v",
+  "ModuleLine" : 2815,
+  "ModuleName" : "picorv32_wb",
+  "SubInsts" : [
+   {
+    "InstFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/picorv32.v",
+    "InstLine" : 2938,
+    "InstName" : "picorv32_core",
+    "ModuleFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/picorv32.v",
+    "ModuleLine" : 62,
+    "ModuleName" : "picorv32"
+   }
+  ]
+ },
+ {
+  "InstFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/top.v",
+  "InstLine" : 1,
+  "InstName" : "top",
+  "ModuleFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/top.v",
+  "ModuleLine" : 1,
+  "ModuleName" : "top",
+  "SubInsts" : [
+   {
+    "InstFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/top.v",
+    "InstLine" : 30,
+    "InstName" : "cpu",
+    "ModuleFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/picorv32.v",
+    "ModuleLine" : 62,
+    "ModuleName" : "picorv32"
+   },
+   {
+    "InstFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/top.v",
+    "InstLine" : 44,
+    "InstName" : "ram",
+    "ModuleFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/ram.v",
+    "ModuleLine" : 1,
+    "ModuleName" : "picorv32_ram"
+   },
+   {
+    "InstFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/top.v",
+    "InstLine" : 67,
+    "InstName" : "uart",
+    "ModuleFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/uart.v",
+    "ModuleLine" : 20,
+    "ModuleName" : "simpleuart"
+   },
+   {
+    "InstFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/top.v",
+    "InstLine" : 92,
+    "InstName" : "sdspi",
+    "ModuleFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/sd_spi.v",
+    "ModuleLine" : 19,
+    "ModuleName" : "sd_spi_helper"
+   }
+  ]
+ }
+]

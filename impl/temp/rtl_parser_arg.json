@@ -1,0 +1,33 @@
+{
+ "Device" : "GW1NR-9C",
+ "Files" : [
+  {
+   "Path" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/picorv32.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/ram.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/sd_spi.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/top.v",
+   "Type" : "verilog"
+  },
+  {
+   "Path" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/uart.v",
+   "Type" : "verilog"
+  }
+ ],
+ "IncludePath" : [
+
+ ],
+ "LoopLimit" : 2000,
+ "ResultFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/impl/temp/rtl_parser.result",
+ "Top" : "",
+ "VerilogStd" : "verilog_2001",
+ "VhdlStd" : "vhdl_93"
+}

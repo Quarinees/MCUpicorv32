@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module name="top" Lut="87" T_Register="737(0)" T_Alu="438(0)" T_Lut="1504(87)" T_Bsram="18(0)">
+ <SubModule name="cpu" Register="574" Alu="314" Lut="1270" Bsram="2" T_Register="574(574)" T_Alu="314(314)" T_Lut="1270(1270)" T_Bsram="2(2)"/>
+ <SubModule name="ram" Register="1" Lut="1" Bsram="16" T_Register="1(1)" T_Lut="1(1)" T_Bsram="16(16)"/>
+ <SubModule name="uart" Register="131" Alu="124" Lut="97" T_Register="131(131)" T_Alu="124(124)" T_Lut="97(97)"/>
+ <SubModule name="sdspi" Register="31" Lut="49" T_Register="31(31)" T_Lut="49(49)"/>
+</Module>
