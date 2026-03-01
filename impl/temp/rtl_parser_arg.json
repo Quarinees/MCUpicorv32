@@ -2,6 +2,10 @@
  "Device" : "GW1NR-9C",
  "Files" : [
   {
+   "Path" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/i2c.v",
+   "Type" : "verilog"
+  },
+  {
    "Path" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/picorv32.v",
    "Type" : "verilog"
   },

@@ -61,7 +61,7 @@
   "SubInsts" : [
    {
     "InstFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/top.v",
-    "InstLine" : 30,
+    "InstLine" : 44,
     "InstName" : "cpu",
     "ModuleFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/picorv32.v",
     "ModuleLine" : 62,
@@ -69,7 +69,7 @@
    },
    {
     "InstFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/top.v",
-    "InstLine" : 44,
+    "InstLine" : 61,
     "InstName" : "ram",
     "ModuleFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/ram.v",
     "ModuleLine" : 1,
@@ -77,7 +77,7 @@
    },
    {
     "InstFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/top.v",
-    "InstLine" : 67,
+    "InstLine" : 84,
     "InstName" : "uart",
     "ModuleFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/uart.v",
     "ModuleLine" : 20,
@@ -85,11 +85,19 @@
    },
    {
     "InstFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/top.v",
-    "InstLine" : 92,
+    "InstLine" : 112,
     "InstName" : "sdspi",
     "ModuleFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/sd_spi.v",
     "ModuleLine" : 19,
     "ModuleName" : "sd_spi_helper"
+   },
+   {
+    "InstFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/top.v",
+    "InstLine" : 164,
+    "InstName" : "i2c",
+    "ModuleFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/i2c.v",
+    "ModuleLine" : 1,
+    "ModuleName" : "I2C"
    }
   ]
  }
