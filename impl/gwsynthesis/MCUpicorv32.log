@@ -47,7 +47,7 @@ Extracting RAM for identifier 'memory'("C:\Users\QuanHoang\OneDrive\Documents\FP
 Compiling module 'simpleuart(DEFAULT_DIV=234)'("C:\Users\QuanHoang\OneDrive\Documents\FPGAGOW1N\MCUpicorv32\MCUpicorv32\src\uart.v":20)
 WARN  (EX3791) : Expression size 5 truncated to fit in target size 4("C:\Users\QuanHoang\OneDrive\Documents\FPGAGOW1N\MCUpicorv32\MCUpicorv32\src\uart.v":99)
 WARN  (EX3791) : Expression size 32 truncated to fit in target size 4("C:\Users\QuanHoang\OneDrive\Documents\FPGAGOW1N\MCUpicorv32\MCUpicorv32\src\uart.v":132)
-Compiling module 'sd_spi_helper'("C:\Users\QuanHoang\OneDrive\Documents\FPGAGOW1N\MCUpicorv32\MCUpicorv32\src\sd_spi.v":19)
+Compiling module 'sd_spi_helper'("C:\Users\QuanHoang\OneDrive\Documents\FPGAGOW1N\MCUpicorv32\MCUpicorv32\src\sd_spi.v":1)
 Compiling module 'I2C'("C:\Users\QuanHoang\OneDrive\Documents\FPGAGOW1N\MCUpicorv32\MCUpicorv32\src\i2c.v":1)
 WARN  (EX3780) : Using initial value of 'slave' since it is never assigned("C:\Users\QuanHoang\OneDrive\Documents\FPGAGOW1N\MCUpicorv32\MCUpicorv32\src\i2c.v":35)
 WARN  (EX3780) : Using initial value of 'cbyte' since it is never assigned("C:\Users\QuanHoang\OneDrive\Documents\FPGAGOW1N\MCUpicorv32\MCUpicorv32\src\i2c.v":36)

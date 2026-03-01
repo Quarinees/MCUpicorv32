@@ -1,21 +1,3 @@
-/* Copyright 2025 Grug Huhler.  License SPDX BSD-2-Clause.
- *
- * This file implements features that allow SD card SPI mode to be
- * bit-banged in software.  It also provides a "helper" function that
- * does a single 8-bit SPI transaction in hardware.  This supports a
- * hybrid implementation that still uses some bit-banging.
- * 
- * Three 8-bit registers for software to use:
- *   0x0 sd_tx:  Write value to send to slave, act of writing begins the send.
- *   0x4 sd_rx:  Contains value from slave after transaction finishes
- *   0x8 sd_cmd: 7:5 reserved (read as 0, ignore write)
- *                 4 busy, 1 while transaction in progress
- *                 3 miso, value of miso signal at last clock
- *                 2 cs, output (also changed by tx process)
- *                 1 mosi, output (also changed by tx process)
- *                 0 clk, output (also changed by tx process)
- */
-
 module sd_spi_helper
   (
    input wire         clk,

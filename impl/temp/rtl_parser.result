@@ -88,7 +88,7 @@
     "InstLine" : 112,
     "InstName" : "sdspi",
     "ModuleFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/sd_spi.v",
-    "ModuleLine" : 19,
+    "ModuleLine" : 1,
     "ModuleName" : "sd_spi_helper"
    },
    {
