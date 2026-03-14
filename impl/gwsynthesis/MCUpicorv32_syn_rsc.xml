@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Module name="top" Register="10" Lut="91" T_Register="783(10)" T_Alu="438(0)" T_Lut="1605(91)" T_Bsram="18(0)">
- <SubModule name="cpu" Register="574" Alu="314" Lut="1279" Bsram="2" T_Register="574(574)" T_Alu="314(314)" T_Lut="1279(1279)" T_Bsram="2(2)"/>
+<Module name="top" Register="152" Lut="192" T_Register="1088(152)" T_Alu="438(0)" T_Lut="1865(192)" T_Bsram="18(0)">
+ <SubModule name="cpu" Register="574" Alu="314" Lut="1272" Bsram="2" T_Register="574(574)" T_Alu="314(314)" T_Lut="1272(1272)" T_Bsram="2(2)"/>
  <SubModule name="ram" Register="1" Lut="1" Bsram="16" T_Register="1(1)" T_Lut="1(1)" T_Bsram="16(16)"/>
- <SubModule name="uart" Register="131" Alu="124" Lut="99" T_Register="131(131)" T_Alu="124(124)" T_Lut="99(99)"/>
+ <SubModule name="uart" Register="131" Alu="124" Lut="95" T_Register="131(131)" T_Alu="124(124)" T_Lut="95(95)"/>
  <SubModule name="sdspi" Register="31" Lut="50" T_Register="31(31)" T_Lut="50(50)"/>
- <SubModule name="i2c" Register="36" Lut="85" T_Register="36(36)" T_Lut="85(85)"/>
+ <SubModule name="u_i2c" Register="199" Lut="255" T_Register="199(199)" T_Lut="255(255)"/>
 </Module>
