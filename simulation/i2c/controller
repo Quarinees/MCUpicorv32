@@ -1,0 +1,102 @@
+module i2c_master_top (
+    input wire clk,         // Xung nhịp hệ thống (ví dụ 50MHz)
+    input wire reset,
+    input wire [6:0] slave_addr,
+    input wire [7:0] write_data, // Dữ liệu ghi (tạm thời 1 byte, có thể mở rộng FIFO)
+    input wire rw,           // 0: Write, 1: Read
+    input wire start_en,     // Kích hoạt tiến trình
+    
+    output reg [7:0] read_data_out,
+    output reg done,         // Báo hiệu xong việc
+    output reg error,        // Báo lỗi nếu cần (NACK)
+    
+    // Physical I2C
+    inout wire i2c_sda,
+    output wire i2c_scl
+);
+
+    // Tín hiệu nội bộ kết nối với 2 sub-module
+    reg start_write, start_read;
+    wire busy_write, busy_read;
+    wire [7:0] data_from_i2c;
+    wire scl_write, scl_read;
+
+    // FSM States
+    localparam IDLE      = 0;
+    localparam BUSY_WR   = 1;
+    localparam BUSY_RD   = 2;
+    localparam FINISH    = 3;
+
+    reg [1:0] state;
+
+    // --- 1. INSTANTIATION ---
+    i2c_write writer (
+        .clk(clk), .reset(reset),
+        .start(start_write),
+        .addr(slave_addr),
+        .data(write_data),
+        .i2c_sda(i2c_sda),
+        .i2c_scl(scl_write),
+        .busy(busy_write)
+    );
+
+    i2c_read reader (
+        .clk(clk), .reset(reset),
+        .start(start_read),
+        .addr(slave_addr),
+        .data_out(data_from_i2c),
+        .i2c_sda(i2c_sda),
+        .i2c_scl(scl_read),
+        .busy(busy_read)
+    );
+
+    // Multiplex SCL dựa trên việc đang Read hay Write
+    assign i2c_scl = (state == BUSY_WR) ? scl_write : 
+                     (state == BUSY_RD) ? scl_read  : 1'b1;
+
+    // --- 2. MAIN CONTROL FSM ---
+    always @(posedge clk or negedge reset) begin
+        if (!reset) begin
+            state <= IDLE;
+            start_write <= 0;
+            start_read <= 0;
+            done <= 0;
+        end else begin
+            case (state)
+                IDLE: begin
+                    done <= 0;
+                    if (start_en) begin
+                        if (rw == 1'b0) begin // Write mode
+                            start_write <= 1;
+                            state <= BUSY_WR;
+                        end else begin        // Read mode
+                            start_read <= 1;
+                            state <= BUSY_RD;
+                        end
+                    end
+                end
+
+                BUSY_WR: begin
+                    start_write <= 0; // Xóa xung start sau khi module đã nhận
+                    if (!busy_write) begin // Chờ module write chạy xong
+                        state <= FINISH;
+                    end
+                end
+
+                BUSY_RD: begin
+                    start_read <= 0;
+                    if (!busy_read) begin
+                        read_data_out <= data_from_i2c;
+                        state <= FINISH;
+                    end
+                end
+
+                FINISH: begin
+                    done <= 1;
+                    state <= IDLE;
+                end
+            endcase
+        end
+    end
+
+endmodule

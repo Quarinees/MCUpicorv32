@@ -1,0 +1,41 @@
+=N:[UsageMeter (2026-05-04 20:08:38 SE Asia Standard Time)] usage server initial connection
+=N:[License] 
+Licensed for Altair DSim Cloud.
+=N:[License] New lease granted.
+Analyzing...
+Elaborating...
+  Top-level modules:
+    $unit
+    tb_i2c_master
+  Found 5 unique specialization(s) of 5 design element(s).
+=W:[MissingTimescale]:
+    It is illegal for some design elements to have time specifications    
+    while others don't.  A complete time specification includes           
+    both a time unit and time precision.                                  
+
+        Have complete time spec    Have no/incomplete time spec    
+
+        tb_i2c_master              i2c_master                      
+
+Optimizing...
+Building models...
+PLI/VPI access: +b 
+Simulation time precision is 1ps.
+Linking image.so...
+Using default typical min/typ/max.
+=S:Begin run-time elaboration and static initialization...
+=N:[dumpMXD] preparing MXD dump to 'wave.mxd'.
+=N:[dump] Dump started at time 0
+=N:Starting event scheduler...
+=N:[dumpMXD] closing MXD dump
+=T:CTRL-C received - terminating run.
+Simulation statistics:
+    End time: -707625744 ticks
+    Events processed: 312532128
+      Fast events: 7
+    Run time: 13.84 sec
+    Garbage collections: 1
+    Terminal heap size: 262144
+    Total bytes allocated: 13248
+  Altair DSim version: 2025.1.0 (b:R #c:449 h:df8da7d488 os:msys2_)
+  Random seed: (defaulted to 1)

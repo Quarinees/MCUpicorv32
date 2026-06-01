@@ -1,0 +1,48 @@
+=N:[UsageMeter (2026-04-20 15:25:02 SE Asia Standard Time)] usage server initial connection
+=N:[License] 
+Licensed for Altair DSim Cloud.
+=N:[License] New lease granted.
+Analyzing...
+Elaborating...
+  Top-level modules:
+    $unit
+    tb_simplegpio
+  Found 5 unique specialization(s) of 5 design element(s).
+=W:[MissingTimescale]:
+    It is illegal for some design elements to have time specifications    
+    while others don't.  A complete time specification includes           
+    both a time unit and time precision.                                  
+
+        Have complete time spec    Have no/incomplete time spec    
+
+        tb_simplegpio              simplegpio                      
+
+Optimizing...
+Building models...
+PLI/VPI access: +b 
+Simulation time precision is 1ps.
+  [1/5] module $root: 99 functions, 236 basic blocks
+  [2/5] module $pkgs: 1 functions, 2 basic blocks
+  [3/5] CU scope $unit: 1 functions, 2 basic blocks
+  [4/5] module tb_simplegpio: 85 functions, 325 basic blocks
+  [5/5] package std: 23 functions, 64 basic blocks
+Linking image.so...
+Using default typical min/typ/max.
+=S:Begin run-time elaboration and static initialization...
+=N:[dumpMXD] preparing MXD dump to 'wave.mxd'.
+=N:[dump] Dump started at time 0
+=N:Starting event scheduler...
+After reset: dir=00000000 out=00000000 in=000000zz istat=00000000 irq=0
+TEST1 dir=0000000f out=00000005 gpio=zzzz0101
+After set  bit1: out=00000007 gpio=zzzz0111
+After clr  bit2: out=00000003 gpio=zzzz0011
+After tog b3,b0: out=0000000a gpio=zzzz1010
+TEST2 reg_in_do=000000aa
+TEST3 istat=0000000f irq=0
+After clear istat=0000000f irq=0
+=N:[dumpMXD] closing MXD dump
+=T:Simulation terminated by $finish at time 415000 (tb.v:256);
+Run directory: C:\Users\QuanHoang\OneDrive\Desktop\final\simulation\gpio
+  System timescale is 1ps / 1ps
+  Altair DSim version: 2025.1.0 (b:R #c:449 h:df8da7d488 os:msys2_)
+  Random seed: (defaulted to 1)

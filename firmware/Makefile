@@ -5,7 +5,7 @@
 # -------------------------------------------------------------
 # Toolchain
 # -------------------------------------------------------------
-CROSS ?= riscv32-unknown-elf
+CROSS ?= riscv64-unknown-elf
 
 CC      = $(CROSS)-gcc
 OBJCOPY = $(CROSS)-objcopy
@@ -41,8 +41,9 @@ CFLAGS = -march=$(ARCH) -mabi=$(ABI) \
          -Wall -Wextra \
          -I.
 
+# ⚠️ QUAN TRỌNG: thêm -nostartfiles để không link crt0 mặc định
 LDFLAGS = -T $(LDS) \
-          -nostdlib \
+          -nostdlib -nostartfiles \
           -Wl,--gc-sections \
           -Wl,--no-relax \
           -Wl,-Map=$(TARGET).map \
@@ -61,7 +62,7 @@ all: $(TARGET).elf $(TARGET).bin $(TARGET).hex
 	@echo "-----------------------------------------"
 	@echo "$(TARGET).hex -> $$(wc -l < $(TARGET).hex) / $(MEM_WORDS) words"
 	@echo "Use in Verilog:"
-	@echo "  \$\$readmemh(\"$(TARGET).hex\", memory);"
+	@echo "  $$readmemh(\"$(TARGET).hex\", memory);"
 	@echo "========================================="
 
 # -------------------------------------------------------------

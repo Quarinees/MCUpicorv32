@@ -1,7 +1,7 @@
-Reading netlist file: "C:\Users\QuanHoang\OneDrive\Documents\FPGAGOW1N\MCUpicorv32\MCUpicorv32\impl\gwsynthesis\MCUpicorv32.vg"
-Parsing netlist file "C:\Users\QuanHoang\OneDrive\Documents\FPGAGOW1N\MCUpicorv32\MCUpicorv32\impl\gwsynthesis\MCUpicorv32.vg" completed
+Reading netlist file: "C:\Users\Quarinees\Downloads\MCUpicorv32\MCUpicorv32\impl\gwsynthesis\MCUpicorv32.vg"
+Parsing netlist file "C:\Users\Quarinees\Downloads\MCUpicorv32\MCUpicorv32\impl\gwsynthesis\MCUpicorv32.vg" completed
 Processing netlist completed
-Reading constraint file: "C:\Users\QuanHoang\OneDrive\Documents\FPGAGOW1N\MCUpicorv32\MCUpicorv32\src\MCUpicorv32.cst"
+Reading constraint file: "C:\Users\Quarinees\Downloads\MCUpicorv32\MCUpicorv32\src\MCUpicorv32.cst"
 Physical Constraint parsed completed
 Running placement......
 [10%] Placement Phase 0 completed
@@ -21,10 +21,10 @@ Bitstream generation in progress......
 Bitstream generation completed
 Running power analysis......
 [100%] Power analysis completed
-Generate file "C:\Users\QuanHoang\OneDrive\Documents\FPGAGOW1N\MCUpicorv32\MCUpicorv32\impl\pnr\MCUpicorv32.power.html" completed
-Generate file "C:\Users\QuanHoang\OneDrive\Documents\FPGAGOW1N\MCUpicorv32\MCUpicorv32\impl\pnr\MCUpicorv32.pin.html" completed
-Generate file "C:\Users\QuanHoang\OneDrive\Documents\FPGAGOW1N\MCUpicorv32\MCUpicorv32\impl\pnr\MCUpicorv32.rpt.html" completed
-Generate file "C:\Users\QuanHoang\OneDrive\Documents\FPGAGOW1N\MCUpicorv32\MCUpicorv32\impl\pnr\MCUpicorv32.rpt.txt" completed
-Generate file "C:\Users\QuanHoang\OneDrive\Documents\FPGAGOW1N\MCUpicorv32\MCUpicorv32\impl\pnr\MCUpicorv32.tr.html" completed
-Sat Mar 14 20:56:40 2026
+Generate file "C:\Users\Quarinees\Downloads\MCUpicorv32\MCUpicorv32\impl\pnr\MCUpicorv32.power.html" completed
+Generate file "C:\Users\Quarinees\Downloads\MCUpicorv32\MCUpicorv32\impl\pnr\MCUpicorv32.pin.html" completed
+Generate file "C:\Users\Quarinees\Downloads\MCUpicorv32\MCUpicorv32\impl\pnr\MCUpicorv32.rpt.html" completed
+Generate file "C:\Users\Quarinees\Downloads\MCUpicorv32\MCUpicorv32\impl\pnr\MCUpicorv32.rpt.txt" completed
+Generate file "C:\Users\Quarinees\Downloads\MCUpicorv32\MCUpicorv32\impl\pnr\MCUpicorv32.tr.html" completed
+Mon Jun  1 11:08:36 2026
 

@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Module name="top" Register="152" Lut="192" T_Register="1088(152)" T_Alu="438(0)" T_Lut="1865(192)" T_Bsram="18(0)">
- <SubModule name="cpu" Register="574" Alu="314" Lut="1272" Bsram="2" T_Register="574(574)" T_Alu="314(314)" T_Lut="1272(1272)" T_Bsram="2(2)"/>
- <SubModule name="ram" Register="1" Lut="1" Bsram="16" T_Register="1(1)" T_Lut="1(1)" T_Bsram="16(16)"/>
- <SubModule name="uart" Register="131" Alu="124" Lut="95" T_Register="131(131)" T_Alu="124(124)" T_Lut="95(95)"/>
- <SubModule name="sdspi" Register="31" Lut="50" T_Register="31(31)" T_Lut="50(50)"/>
- <SubModule name="u_i2c" Register="199" Lut="255" T_Register="199(199)" T_Lut="255(255)"/>
+<Module name="top" Register="145" Lut="667" T_Register="2156(145)" T_Alu="706(0)" T_Lut="4611(667)" T_Bsram="17(0)" T_Ssram="66(0)">
+ <SubModule name="ram_inst" Register="1" Lut="7" Bsram="16" T_Register="1(1)" T_Lut="7(7)" T_Bsram="16(16)"/>
+ <SubModule name="uart_inst" Register="131" Lut="233" T_Register="131(131)" T_Lut="233(233)"/>
+ <SubModule name="gpio_inst" Register="57" Lut="49" Ssram="2" T_Register="57(57)" T_Lut="49(49)" T_Ssram="2(2)"/>
+ <SubModule name="timer_inst" Register="362" Alu="314" Lut="634" Ssram="40" T_Register="362(362)" T_Alu="314(314)" T_Lut="634(634)" T_Ssram="40(40)"/>
+ <SubModule name="spi_inst" Register="107" Lut="123" T_Register="107(107)" T_Lut="123(123)"/>
+ <SubModule name="u_i2c" Register="298" Lut="378" T_Register="298(298)" T_Lut="378(378)"/>
+ <SubModule name="cpu" Register="600" Alu="250" Lut="1836" Bsram="1" Ssram="24" T_Register="1055(600)" T_Alu="392(250)" T_Lut="2520(1836)" T_Bsram="1(1)" T_Ssram="24(24)">
+  <SubModule name="pcpi_mul" Register="255" Alu="78" Lut="333" T_Register="255(255)" T_Alu="78(78)" T_Lut="333(333)"/>
+  <SubModule name="pcpi_div" Register="200" Alu="64" Lut="351" T_Register="200(200)" T_Alu="64(64)" T_Lut="351(351)"/>
+ </SubModule>
 </Module>

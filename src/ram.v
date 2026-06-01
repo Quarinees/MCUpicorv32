@@ -1,8 +1,8 @@
-module picorv32_ram #(
+module simpleram #(
     parameter MEM_WORDS = 8192
 )(
     input  wire        clk,
-
+    
     input  wire        mem_valid,
     output reg         mem_ready,
     input  wire [31:0] mem_addr,

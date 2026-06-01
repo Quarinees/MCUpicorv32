@@ -1,42 +1,52 @@
 OUTPUT_ARCH(riscv)
 ENTRY(_start)
 
-MEMORY {
-    RAM (rwx) : ORIGIN = 0x00000000, LENGTH = 32K
+MEMORY
+{
+    ram (rwx) : ORIGIN = 0x00000000, LENGTH = 32K
 }
 
-SECTIONS {
+SECTIONS
+{
+    /* ===== RESET VECTOR (0x0000) ===== */
+    .vectors 0x00000000 : {
+        KEEP(*(.vectors))
+    } > ram
 
-    . = ORIGIN(RAM);
+    /* ===== IRQ VECTOR (0x0010) ===== */
+    .irq 0x00000010 : {
+        KEEP(*(.irq))
+    } > ram
 
-    /* code + rodata */
-    .text : {
-        KEEP(*(.text.start))
-        *(.text*)
-        *(.rodata*)
-        . = ALIGN(4);
-    } > RAM
+    /* ===== CODE (0x0020 trở đi) ===== */
+    .text 0x00000020 : {
+        *(.text.init)
+        *(.text)
+        *(.text.*)
+    } > ram
 
-    /* initialized data */
+    .rodata : {
+        *(.rodata)
+        *(.rodata.*)
+    } > ram
+
     .data : {
-        __data_start = .;
-        *(.data*)
-        __data_end = .;
-        . = ALIGN(4);
-    } > RAM
+        *(.data)
+        *(.data.*)
+    } > ram
 
-    /* zero-initialized data */
     .bss : {
-        . = ALIGN(4);
-        __bss_start = .;
-        *(.bss*)
+        PROVIDE(_bss_start = .);
+        *(.bss)
+        *(.bss.*)
         *(COMMON)
-        __bss_end = .;
-        . = ALIGN(4);
-    } > RAM
+        PROVIDE(_bss_end = .);
+    } > ram
 
-    _end = .;
-
-    /* stack pointer */
-    __stack_top = ORIGIN(RAM) + LENGTH(RAM);
+    /* ===== STACK ===== */
+    .stack : {
+        PROVIDE(_stack_start = .);
+        . = . + 4K;
+        PROVIDE(_stack_top = .);
+    } > ram
 }

@@ -1,0 +1,71 @@
+=N:[UsageMeter (2026-04-20 15:21:44 SE Asia Standard Time)] usage server initial connection
+=N:[License] 
+Licensed for Altair DSim Cloud.
+=N:[License] New lease granted.
+Analyzing...
+Elaborating...
+  Top-level modules:
+    $unit
+    tb_simplespi
+  Found 5 unique specialization(s) of 5 design element(s).
+=W:[MissingTimescale]:
+    It is illegal for some design elements to have time specifications    
+    while others don't.  A complete time specification includes           
+    both a time unit and time precision.                                  
+
+        Have complete time spec    Have no/incomplete time spec    
+
+        tb_simplespi               simplespi                       
+
+Optimizing...
+Building models...
+PLI/VPI access: +b 
+Simulation time precision is 1ps.
+  [1/5] module $root: 100 functions, 241 basic blocks
+  [2/5] module $pkgs: 1 functions, 2 basic blocks
+  [3/5] CU scope $unit: 1 functions, 2 basic blocks
+  [4/5] module tb_simplespi: 57 functions, 320 basic blocks
+  [5/5] package std: 23 functions, 64 basic blocks
+Linking image.so...
+Using default typical min/typ/max.
+=S:Begin run-time elaboration and static initialization...
+=N:[dumpMXD] preparing MXD dump to 'wave.mxd'.
+=N:[dump] Dump started at time 0
+=N:Starting event scheduler...
+time   rst cs sck mosi miso busy valid dat_do
+0  0   x  x   x    0    x    x    0xXxxxxxxx
+5000  0   1  0   1    1    0    0    0xffffffff
+45000  1   1  0   1    1    0    0    0xffffffff
+
+--- START SPI TRANSFER ---
+125000  1   0  0   0    1    1    0    0xffffffff
+175000  1   0  1   0    1    1    0    0xffffffff
+215000  1   0  0   0    1    1    0    0xffffffff
+255000  1   0  1   0    1    1    0    0xffffffff
+295000  1   0  0   1    0    1    0    0xffffffff
+335000  1   0  1   1    0    1    0    0xffffffff
+375000  1   0  0   1    1    1    0    0xffffffff
+415000  1   0  1   1    1    1    0    0xffffffff
+455000  1   0  0   1    0    1    0    0xffffffff
+495000  1   0  1   1    0    1    0    0xffffffff
+535000  1   0  0   1    0    1    0    0xffffffff
+575000  1   0  1   1    0    1    0    0xffffffff
+615000  1   0  0   0    1    1    0    0xffffffff
+655000  1   0  1   0    1    1    0    0xffffffff
+695000  1   0  0   0    0    1    0    0xffffffff
+735000  1   0  1   0    0    1    0    0xffffffff
+775000  1   0  0   0    1    1    1    0x800000d2
+
+--- TRANSFER DONE ---
+STAT = 0x00000002
+DAT  = 0x800000d2
+RX byte = 0xd2
+975000  1   1  0   0    1    0    1    0x800000d2
+995000  1   1  0   0    1    0    0    0xffffffff
+After reg_dat_re, DAT = 0xffffffff
+=N:[dumpMXD] closing MXD dump
+=T:Simulation terminated by $finish at time 1105000 (tb.v:216);
+Run directory: C:\Users\QuanHoang\OneDrive\Desktop\final\simulation\spi
+  System timescale is 1ps / 1ps
+  Altair DSim version: 2025.1.0 (b:R #c:449 h:df8da7d488 os:msys2_)
+  Random seed: (defaulted to 1)

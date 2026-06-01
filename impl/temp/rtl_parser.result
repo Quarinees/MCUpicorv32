@@ -1,103 +1,137 @@
 [
  {
-  "InstFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/picorv32.v",
+  "InstFile" : "C:/Users/Quarinees/Downloads/MCUpicorv32/MCUpicorv32/src/picorv32.v",
   "InstLine" : 2174,
   "InstName" : "picorv32_regs",
-  "ModuleFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/picorv32.v",
+  "ModuleFile" : "C:/Users/Quarinees/Downloads/MCUpicorv32/MCUpicorv32/src/picorv32.v",
   "ModuleLine" : 2174,
   "ModuleName" : "picorv32_regs"
  },
  {
-  "InstFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/picorv32.v",
+  "InstFile" : "C:/Users/Quarinees/Downloads/MCUpicorv32/MCUpicorv32/src/picorv32.v",
   "InstLine" : 2517,
   "InstName" : "picorv32_axi",
-  "ModuleFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/picorv32.v",
+  "ModuleFile" : "C:/Users/Quarinees/Downloads/MCUpicorv32/MCUpicorv32/src/picorv32.v",
   "ModuleLine" : 2517,
   "ModuleName" : "picorv32_axi",
   "SubInsts" : [
    {
-    "InstFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/picorv32.v",
+    "InstFile" : "C:/Users/Quarinees/Downloads/MCUpicorv32/MCUpicorv32/src/picorv32.v",
     "InstLine" : 2619,
     "InstName" : "axi_adapter",
-    "ModuleFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/picorv32.v",
+    "ModuleFile" : "C:/Users/Quarinees/Downloads/MCUpicorv32/MCUpicorv32/src/picorv32.v",
     "ModuleLine" : 2731,
     "ModuleName" : "picorv32_axi_adapter"
    },
    {
-    "InstFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/picorv32.v",
+    "InstFile" : "C:/Users/Quarinees/Downloads/MCUpicorv32/MCUpicorv32/src/picorv32.v",
     "InstLine" : 2674,
     "InstName" : "picorv32_core",
-    "ModuleFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/picorv32.v",
+    "ModuleFile" : "C:/Users/Quarinees/Downloads/MCUpicorv32/MCUpicorv32/src/picorv32.v",
     "ModuleLine" : 62,
     "ModuleName" : "picorv32"
    }
   ]
  },
  {
-  "InstFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/picorv32.v",
+  "InstFile" : "C:/Users/Quarinees/Downloads/MCUpicorv32/MCUpicorv32/src/picorv32.v",
   "InstLine" : 2815,
   "InstName" : "picorv32_wb",
-  "ModuleFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/picorv32.v",
+  "ModuleFile" : "C:/Users/Quarinees/Downloads/MCUpicorv32/MCUpicorv32/src/picorv32.v",
   "ModuleLine" : 2815,
   "ModuleName" : "picorv32_wb",
   "SubInsts" : [
    {
-    "InstFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/picorv32.v",
+    "InstFile" : "C:/Users/Quarinees/Downloads/MCUpicorv32/MCUpicorv32/src/picorv32.v",
     "InstLine" : 2938,
     "InstName" : "picorv32_core",
-    "ModuleFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/picorv32.v",
+    "ModuleFile" : "C:/Users/Quarinees/Downloads/MCUpicorv32/MCUpicorv32/src/picorv32.v",
     "ModuleLine" : 62,
     "ModuleName" : "picorv32"
    }
   ]
  },
  {
-  "InstFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/top.v",
-  "InstLine" : 24,
+  "InstFile" : "C:/Users/Quarinees/Downloads/MCUpicorv32/MCUpicorv32/src/top.v",
+  "InstLine" : 19,
   "InstName" : "top",
-  "ModuleFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/top.v",
-  "ModuleLine" : 24,
+  "ModuleFile" : "C:/Users/Quarinees/Downloads/MCUpicorv32/MCUpicorv32/src/top.v",
+  "ModuleLine" : 19,
   "ModuleName" : "top",
   "SubInsts" : [
    {
-    "InstFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/top.v",
-    "InstLine" : 63,
-    "InstName" : "cpu",
-    "ModuleFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/picorv32.v",
-    "ModuleLine" : 62,
-    "ModuleName" : "picorv32"
-   },
-   {
-    "InstFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/top.v",
-    "InstLine" : 80,
-    "InstName" : "ram",
-    "ModuleFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/ram.v",
+    "InstFile" : "C:/Users/Quarinees/Downloads/MCUpicorv32/MCUpicorv32/src/top.v",
+    "InstLine" : 106,
+    "InstName" : "ram_inst",
+    "ModuleFile" : "C:/Users/Quarinees/Downloads/MCUpicorv32/MCUpicorv32/src/ram.v",
     "ModuleLine" : 1,
-    "ModuleName" : "picorv32_ram"
+    "ModuleName" : "simpleram"
    },
    {
-    "InstFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/top.v",
-    "InstLine" : 101,
-    "InstName" : "uart",
-    "ModuleFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/uart.v",
-    "ModuleLine" : 3,
+    "InstFile" : "C:/Users/Quarinees/Downloads/MCUpicorv32/MCUpicorv32/src/top.v",
+    "InstLine" : 122,
+    "InstName" : "uart_inst",
+    "ModuleFile" : "C:/Users/Quarinees/Downloads/MCUpicorv32/MCUpicorv32/src/uart.v",
+    "ModuleLine" : 2,
     "ModuleName" : "simpleuart"
    },
    {
-    "InstFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/top.v",
-    "InstLine" : 124,
-    "InstName" : "sdspi",
-    "ModuleFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/sd_spi.v",
+    "InstFile" : "C:/Users/Quarinees/Downloads/MCUpicorv32/MCUpicorv32/src/top.v",
+    "InstLine" : 145,
+    "InstName" : "gpio_inst",
+    "ModuleFile" : "C:/Users/Quarinees/Downloads/MCUpicorv32/MCUpicorv32/src/gpio.v",
     "ModuleLine" : 1,
-    "ModuleName" : "sd_spi_helper"
+    "ModuleName" : "simplegpio"
    },
    {
-    "InstFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/top.v",
-    "InstLine" : 250,
+    "InstFile" : "C:/Users/Quarinees/Downloads/MCUpicorv32/MCUpicorv32/src/top.v",
+    "InstLine" : 184,
+    "InstName" : "timer_inst",
+    "ModuleFile" : "C:/Users/Quarinees/Downloads/MCUpicorv32/MCUpicorv32/src/timer.v",
+    "ModuleLine" : 4,
+    "ModuleName" : "simpletimer"
+   },
+   {
+    "InstFile" : "C:/Users/Quarinees/Downloads/MCUpicorv32/MCUpicorv32/src/top.v",
+    "InstLine" : 222,
+    "InstName" : "spi_inst",
+    "ModuleFile" : "C:/Users/Quarinees/Downloads/MCUpicorv32/MCUpicorv32/src/spi.v",
+    "ModuleLine" : 3,
+    "ModuleName" : "simplespi"
+   },
+   {
+    "InstFile" : "C:/Users/Quarinees/Downloads/MCUpicorv32/MCUpicorv32/src/top.v",
+    "InstLine" : 330,
     "InstName" : "u_i2c",
-    "ModuleFile" : "C:/Users/QuanHoang/OneDrive/Documents/FPGAGOW1N/MCUpicorv32/MCUpicorv32/src/i2c.v",
-    "ModuleLine" : 12,
-    "ModuleName" : "I2C_Master"
+    "ModuleFile" : "C:/Users/Quarinees/Downloads/MCUpicorv32/MCUpicorv32/src/i2c.v",
+    "ModuleLine" : 18,
+    "ModuleName" : "i2c_master"
+   },
+   {
+    "InstFile" : "C:/Users/Quarinees/Downloads/MCUpicorv32/MCUpicorv32/src/top.v",
+    "InstLine" : 404,
+    "InstName" : "cpu",
+    "ModuleFile" : "C:/Users/Quarinees/Downloads/MCUpicorv32/MCUpicorv32/src/picorv32.v",
+    "ModuleLine" : 62,
+    "ModuleName" : "picorv32",
+    "SubInsts" : [
+     {
+      "InstFile" : "C:/Users/Quarinees/Downloads/MCUpicorv32/MCUpicorv32/src/picorv32.v",
+      "InstLine" : 286,
+      "InstName" : "pcpi_mul",
+      "ModuleFile" : "C:/Users/Quarinees/Downloads/MCUpicorv32/MCUpicorv32/src/picorv32.v",
+      "ModuleLine" : 2197,
+      "ModuleName" : "picorv32_pcpi_mul"
+     },
+     {
+      "InstFile" : "C:/Users/Quarinees/Downloads/MCUpicorv32/MCUpicorv32/src/picorv32.v",
+      "InstLine" : 306,
+      "InstName" : "pcpi_div",
+      "ModuleFile" : "C:/Users/Quarinees/Downloads/MCUpicorv32/MCUpicorv32/src/picorv32.v",
+      "ModuleLine" : 2420,
+      "ModuleName" : "picorv32_pcpi_div"
+     }
+    ]
    }
   ]
  }

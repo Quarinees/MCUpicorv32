@@ -1,0 +1,73 @@
+=N:[UsageMeter (2026-04-20 15:28:48 SE Asia Standard Time)] usage server initial connection
+=N:[License] 
+Licensed for Altair DSim Cloud.
+=N:[License] New lease granted.
+Analyzing...
+Elaborating...
+  Top-level modules:
+    $unit
+    tb_simpleuart
+  Found 5 unique specialization(s) of 5 design element(s).
+=W:[MissingTimescale]:
+    It is illegal for some design elements to have time specifications    
+    while others don't.  A complete time specification includes           
+    both a time unit and time precision.                                  
+
+        Have complete time spec    Have no/incomplete time spec    
+
+        tb_simpleuart              simpleuart                      
+
+Optimizing...
+Building models...
+PLI/VPI access: +b 
+Simulation time precision is 1ps.
+  [1/5] module $root: 100 functions, 241 basic blocks
+  [2/5] module $pkgs: 1 functions, 2 basic blocks
+  [3/5] CU scope $unit: 1 functions, 2 basic blocks
+  [4/5] module tb_simpleuart: 55 functions, 275 basic blocks
+  [5/5] package std: 23 functions, 64 basic blocks
+Linking image.so...
+Using default typical min/typ/max.
+=S:Begin run-time elaboration and static initialization...
+=N:[dumpMXD] preparing MXD dump to 'wave.mxd'.
+=N:[dump] Dump started at time 0
+=N:Starting event scheduler...
+time   rst tx rx wait reg_dat_do
+0  0   x  1   x   0xxxxxxxxx
+5000  0   1  1   0   0xffffffff
+45000  1   1  1   0   0xffffffff
+
+--- TEST TX: send 0x55 ---
+105000  1   0  1   1   0xffffffff
+145000  1   1  1   1   0xffffffff
+185000  1   0  1   1   0xffffffff
+225000  1   1  1   1   0xffffffff
+265000  1   0  1   1   0xffffffff
+305000  1   1  1   1   0xffffffff
+345000  1   0  1   1   0xffffffff
+385000  1   1  1   1   0xffffffff
+425000  1   0  1   1   0xffffffff
+465000  1   1  1   1   0xffffffff
+TX done
+
+--- TEST RX: receive 0xA5 ---
+505000  1   1  1   0   0xffffffff
+525000  1   1  0   0   0xffffffff
+565000  1   1  1   0   0xffffffff
+605000  1   1  0   0   0xffffffff
+645000  1   1  1   0   0xffffffff
+685000  1   1  0   0   0xffffffff
+765000  1   1  1   0   0xffffffff
+805000  1   1  0   0   0xffffffff
+845000  1   1  1   0   0xffffffff
+915000  1   1  1   0   0x000000a5
+RX reg_dat_do = 0x000000a5
+RX PASS
+1005000  1   1  1   0   0xffffffff
+After clear, reg_dat_do = 0xffffffff
+=N:[dumpMXD] closing MXD dump
+=T:Simulation terminated by $finish at time 1065000 (tb:170);
+Run directory: C:\Users\QuanHoang\OneDrive\Desktop\final\simulation\uart
+  System timescale is 1ps / 1ps
+  Altair DSim version: 2025.1.0 (b:R #c:449 h:df8da7d488 os:msys2_)
+  Random seed: (defaulted to 1)

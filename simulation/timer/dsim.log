@@ -1,0 +1,87 @@
+=N:[UsageMeter (2026-04-20 15:31:32 SE Asia Standard Time)] usage server initial connection
+=N:[License] 
+Licensed for Altair DSim Cloud.
+=N:[License] New lease granted.
+Analyzing...
+Elaborating...
+  Top-level modules:
+    $unit
+    tb_simpletimer
+  Found 5 unique specialization(s) of 5 design element(s).
+=W:[MissingTimescale]:
+    It is illegal for some design elements to have time specifications    
+    while others don't.  A complete time specification includes           
+    both a time unit and time precision.                                  
+
+        Have complete time spec    Have no/incomplete time spec    
+
+        tb_simpletimer             simpletimer                     
+
+Optimizing...
+Building models...
+PLI/VPI access: +b 
+Simulation time precision is 1ps.
+  [1/5] module $root: 117 functions, 278 basic blocks
+  [2/5] module $pkgs: 1 functions, 2 basic blocks
+  [3/5] CU scope $unit: 1 functions, 2 basic blocks
+  [4/5] module tb_simpletimer: 65 functions, 348 basic blocks
+  [5/5] package std: 23 functions, 64 basic blocks
+Linking image.so...
+Using default typical min/typ/max.
+=S:Begin run-time elaboration and static initialization...
+=N:[dumpMXD] preparing MXD dump to 'wave.mxd'.
+=N:[dump] Dump started at time 0
+=N:Starting event scheduler...
+After reset:
+CTRL  = 00000000
+PSC   = 00000000
+ISTAT = 00000000 IRQ=0
+
+Start timer ch0...
+t=155000 cnt0=0 pwm0=0 istat=0 irq=0
+t=165000 cnt0=0 pwm0=0 istat=0 irq=0
+t=175000 cnt0=1 pwm0=0 istat=0 irq=0
+t=185000 cnt0=1 pwm0=0 istat=0 irq=0
+t=195000 cnt0=2 pwm0=0 istat=0 irq=0
+t=205000 cnt0=2 pwm0=0 istat=0 irq=0
+t=215000 cnt0=3 pwm0=1 istat=1 irq=1
+t=225000 cnt0=3 pwm0=1 istat=1 irq=1
+t=235000 cnt0=4 pwm0=1 istat=1 irq=1
+t=245000 cnt0=4 pwm0=1 istat=1 irq=1
+t=255000 cnt0=5 pwm0=1 istat=1 irq=1
+t=265000 cnt0=5 pwm0=1 istat=1 irq=1
+t=275000 cnt0=0 pwm0=0 istat=1 irq=1
+t=285000 cnt0=0 pwm0=0 istat=1 irq=1
+t=295000 cnt0=1 pwm0=0 istat=1 irq=1
+t=305000 cnt0=1 pwm0=0 istat=1 irq=1
+t=315000 cnt0=2 pwm0=0 istat=1 irq=1
+t=325000 cnt0=2 pwm0=0 istat=1 irq=1
+t=335000 cnt0=3 pwm0=1 istat=1 irq=1
+t=345000 cnt0=3 pwm0=1 istat=1 irq=1
+
+Clear interrupt bit0
+After clear: ISTAT=00000000 IRQ=0
+
+Start one-shot timer ch1...
+t=445000 cnt1=2 pwm1=0 ctrl=00002202 istat=00000000 irq=0
+t=455000 cnt1=1 pwm1=0 ctrl=00002202 istat=00000000 irq=0
+t=465000 cnt1=1 pwm1=0 ctrl=00002202 istat=00000000 irq=0
+t=475000 cnt1=2 pwm1=1 ctrl=00002202 istat=00000002 irq=1
+t=485000 cnt1=2 pwm1=1 ctrl=00002202 istat=00000002 irq=1
+t=495000 cnt1=3 pwm1=1 ctrl=00002202 istat=00000002 irq=1
+t=505000 cnt1=3 pwm1=1 ctrl=00002202 istat=00000002 irq=1
+t=515000 cnt1=0 pwm1=0 ctrl=00002202 istat=00000002 irq=1
+t=525000 cnt1=0 pwm1=0 ctrl=00002202 istat=00000002 irq=1
+t=535000 cnt1=1 pwm1=0 ctrl=00002202 istat=00000002 irq=1
+t=545000 cnt1=1 pwm1=0 ctrl=00002202 istat=00000002 irq=1
+t=555000 cnt1=2 pwm1=1 ctrl=00002202 istat=00000002 irq=1
+t=565000 cnt1=2 pwm1=1 ctrl=00002202 istat=00000002 irq=1
+t=575000 cnt1=3 pwm1=1 ctrl=00002202 istat=00000002 irq=1
+t=585000 cnt1=3 pwm1=1 ctrl=00002202 istat=00000002 irq=1
+t=595000 cnt1=0 pwm1=0 ctrl=00002202 istat=00000002 irq=1
+=N:[dumpMXD] closing MXD dump
+=T:Simulation terminated by $finish at time 645000 (tb.v:204);
+Run directory: C:\Users\QuanHoang\OneDrive\Desktop\final\simulation\timer
+  System timescale is 1ps / 1ps
+  Altair DSim version: 2025.1.0 (b:R #c:449 h:df8da7d488 os:msys2_)
+  Random seed: (defaulted to 1)

@@ -1,8 +1,8 @@
--d C:\Users\QuanHoang\OneDrive\Documents\FPGAGOW1N\MCUpicorv32\MCUpicorv32\impl\gwsynthesis\MCUpicorv32.vg
+-d C:\Users\Quarinees\Downloads\MCUpicorv32\MCUpicorv32\impl\gwsynthesis\MCUpicorv32.vg
 -p GW1NR-9C-QFN88P-6
 -pn GW1NR-LV9QN88PC6/I5
--cst C:\Users\QuanHoang\OneDrive\Documents\FPGAGOW1N\MCUpicorv32\MCUpicorv32\src\MCUpicorv32.cst
--cfg C:\Users\QuanHoang\OneDrive\Documents\FPGAGOW1N\MCUpicorv32\MCUpicorv32\impl\pnr\device.cfg
+-cst C:\Users\Quarinees\Downloads\MCUpicorv32\MCUpicorv32\src\MCUpicorv32.cst
+-cfg C:\Users\Quarinees\Downloads\MCUpicorv32\MCUpicorv32\impl\pnr\device.cfg
 -bit
 -tr
 -ph

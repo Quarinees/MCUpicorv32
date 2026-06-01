@@ -1,120 +1,159 @@
+// simpleuart.v
+module simpleuart #(
+    parameter integer DEFAULT_DIV = 1
+) (
+    input  wire        clk,
+    input  wire        resetn,
 
+    output wire        ser_tx,
+    input  wire        ser_rx,
 
-module simpleuart #(parameter integer DEFAULT_DIV = 1) (
-	input clk,
-	input resetn,
+    input  wire [3:0]  reg_div_we,
+    input  wire [31:0] reg_div_di,
+    output wire [31:0] reg_div_do,
 
-	output ser_tx,
-	input  ser_rx,
-
-	input   [3:0] reg_div_we,
-	input  [31:0] reg_div_di,
-	output [31:0] reg_div_do,
-
-	input         reg_dat_we,
-	input         reg_dat_re,
-	input  [31:0] reg_dat_di,
-	output [31:0] reg_dat_do,
-	output        reg_dat_wait
+    input  wire        reg_dat_we,
+    input  wire        reg_dat_re,
+    input  wire [31:0] reg_dat_di,
+    output wire [31:0] reg_dat_do,
+    output wire        reg_dat_wait
 );
-	reg [31:0] cfg_divider;
 
-	reg [3:0] recv_state;
-	reg [31:0] recv_divcnt;
-	reg [7:0] recv_pattern;
-	reg [7:0] recv_buf_data;
-	reg recv_buf_valid;
+    // =========================================================
+    // BAUD DIVIDER REGISTER
+    // =========================================================
+    reg [31:0] cfg_divider;
 
-	reg [9:0] send_pattern;
-	reg [3:0] send_bitcnt;
-	reg [31:0] send_divcnt;
-	reg send_dummy;
+    assign reg_div_do = cfg_divider;
 
-	assign reg_div_do = cfg_divider;
+    always @(posedge clk) begin
+        if (!resetn) begin
+            cfg_divider <= DEFAULT_DIV;
+        end else begin
+            if (reg_div_we[0]) cfg_divider[ 7: 0] <= reg_div_di[ 7: 0];
+            if (reg_div_we[1]) cfg_divider[15: 8] <= reg_div_di[15: 8];
+            if (reg_div_we[2]) cfg_divider[23:16] <= reg_div_di[23:16];
+            if (reg_div_we[3]) cfg_divider[31:24] <= reg_div_di[31:24];
+        end
+    end
 
-	assign reg_dat_wait = reg_dat_we && (send_bitcnt || send_dummy);
-	assign reg_dat_do = recv_buf_valid ? recv_buf_data : ~0;
+    // =========================================================
+    // TX — counter riêng: tx_div_cnt
+    // =========================================================
+    reg [31:0] tx_div_cnt;
+    reg [9:0]  tx_shift;
+    reg [3:0]  tx_bitcnt;
+    reg        tx_busy;
 
-	always @(posedge clk) begin
-		if (!resetn) begin
-			cfg_divider <= DEFAULT_DIV;
-		end else begin
-			if (reg_div_we[0]) cfg_divider[ 7: 0] <= reg_div_di[ 7: 0];
-			if (reg_div_we[1]) cfg_divider[15: 8] <= reg_div_di[15: 8];
-			if (reg_div_we[2]) cfg_divider[23:16] <= reg_div_di[23:16];
-			if (reg_div_we[3]) cfg_divider[31:24] <= reg_div_di[31:24];
-		end
-	end
+    wire tx_tick = (tx_div_cnt == 0);
 
-	always @(posedge clk) begin
-		if (!resetn) begin
-			recv_state <= 0;
-			recv_divcnt <= 0;
-			recv_pattern <= 0;
-			recv_buf_data <= 0;
-			recv_buf_valid <= 0;
-		end else begin
-			recv_divcnt <= recv_divcnt + 1;
-			if (reg_dat_re)
-				recv_buf_valid <= 0;
-			case (recv_state)
-				0: begin
-					if (!ser_rx)
-						recv_state <= 1;
-					recv_divcnt <= 0;
-				end
-				1: begin
-					if (2*recv_divcnt > cfg_divider) begin
-						recv_state <= 2;
-						recv_divcnt <= 0;
-					end
-				end
-				10: begin
-					if (recv_divcnt > cfg_divider) begin
-						recv_buf_data <= recv_pattern;
-						recv_buf_valid <= 1;
-						recv_state <= 0;
-					end
-				end
-				default: begin
-					if (recv_divcnt > cfg_divider) begin
-						recv_pattern <= {ser_rx, recv_pattern[7:1]};
-						recv_state <= recv_state + 1;
-						recv_divcnt <= 0;
-					end
-				end
-			endcase
-		end
-	end
+    assign ser_tx       = tx_busy ? tx_shift[0] : 1'b1;
+    assign reg_dat_wait = tx_busy;
 
-	assign ser_tx = send_pattern[0];
+    always @(posedge clk) begin
+        if (!resetn) begin
+            tx_div_cnt <= DEFAULT_DIV;
+            tx_shift   <= 10'h3FF;
+            tx_bitcnt  <= 0;
+            tx_busy    <= 0;
+        end else begin
+            if (reg_dat_we && !tx_busy) begin
+                // Reset counter khi load byte mới
+                // → baud_tick đầu tiên xảy ra đúng 1 period sau
+                tx_div_cnt <= cfg_divider;
+                tx_shift   <= {1'b1, reg_dat_di[7:0], 1'b0};
+                tx_bitcnt  <= 10;
+                tx_busy    <= 1;
+            end else if (tx_tick && tx_busy) begin
+                tx_div_cnt <= cfg_divider;
+                tx_shift   <= {1'b1, tx_shift[9:1]};
+                tx_bitcnt  <= tx_bitcnt - 1;
+                if (tx_bitcnt == 1)
+                    tx_busy <= 0;
+            end else if (tx_busy) begin
+                tx_div_cnt <= tx_div_cnt - 1;
+            end else begin
+                tx_div_cnt <= DEFAULT_DIV;
+            end
+        end
+    end
 
-	always @(posedge clk) begin
-		if (reg_div_we)
-			send_dummy <= 1;
-		send_divcnt <= send_divcnt + 1;
-		if (!resetn) begin
-			send_pattern <= ~0;
-			send_bitcnt <= 0;
-			send_divcnt <= 0;
-			send_dummy <= 1;
-		end else begin
-			if (send_dummy && !send_bitcnt) begin
-				send_pattern <= ~0;
-				send_bitcnt <= 15;
-				send_divcnt <= 0;
-				send_dummy <= 0;
-			end else
-			if (reg_dat_we && !send_bitcnt) begin
-				send_pattern <= {1'b1, reg_dat_di[7:0], 1'b0};
-				send_bitcnt <= 10;
-				send_divcnt <= 0;
-			end else
-			if (send_divcnt > cfg_divider && send_bitcnt) begin
-				send_pattern <= {1'b1, send_pattern[9:1]};
-				send_bitcnt <= send_bitcnt - 1;
-				send_divcnt <= 0;
-			end
-		end
-	end
+    // =========================================================
+    // RX — counter riêng: rx_div_cnt
+    // Sample giữa bit để tránh edge uncertainty
+    // =========================================================
+    reg [31:0] rx_div_cnt;
+    reg [3:0]  rx_state;
+    reg [7:0]  rx_shift;
+    reg [7:0]  rx_data;
+    reg        rx_valid;
+
+    wire rx_tick = (rx_div_cnt == 0);
+
+    assign reg_dat_do = rx_valid ? {24'h0, rx_data} : 32'hFFFF_FFFF;
+
+    always @(posedge clk) begin
+        if (!resetn) begin
+            rx_div_cnt <= DEFAULT_DIV;
+            rx_state   <= 0;
+            rx_valid   <= 0;
+            rx_shift   <= 0;
+            rx_data    <= 0;
+        end else begin
+            if (reg_dat_re)
+                rx_valid <= 0;
+
+            case (rx_state)
+                0: begin
+                    if (!ser_rx) begin
+                        // Detect start bit: set counter = divider/2
+                        // để sample ở giữa start bit
+                        rx_div_cnt <= cfg_divider >> 1;
+                        rx_state   <= 1;
+                    end
+                end
+
+                1: begin
+                    if (rx_tick) begin
+                        rx_div_cnt <= cfg_divider;
+                        if (!ser_rx)
+                            rx_state <= 2;
+                        else
+                            rx_state <= 0; // glitch
+                    end else begin
+                        rx_div_cnt <= rx_div_cnt - 1;
+                    end
+                end
+
+                2,3,4,5,6,7,8,9: begin
+                    if (rx_tick) begin
+                        rx_div_cnt <= cfg_divider;
+                        rx_shift   <= {ser_rx, rx_shift[7:1]};
+                        rx_state   <= rx_state + 1;
+                    end else begin
+                        rx_div_cnt <= rx_div_cnt - 1;
+                    end
+                end
+
+                10: begin
+                    if (rx_tick) begin
+                        rx_div_cnt <= cfg_divider;
+                        if (ser_rx) begin
+                            rx_data  <= rx_shift;
+                            rx_valid <= 1;
+                        end
+                        rx_state <= 0;
+                    end else begin
+                        rx_div_cnt <= rx_div_cnt - 1;
+                    end
+                end
+
+                default: begin
+                    rx_state   <= 0;
+                    rx_div_cnt <= DEFAULT_DIV;
+                end
+            endcase
+        end
+    end
+
 endmodule

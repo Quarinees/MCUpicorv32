@@ -1,0 +1,175 @@
+`timescale 1ns/1ps
+`default_nettype none
+
+module tb_simpleuart;
+
+    reg         clk;
+    reg         resetn;
+
+    wire        ser_tx;
+    reg         ser_rx;
+
+    reg  [3:0]  reg_div_we;
+    reg  [31:0] reg_div_di;
+    wire [31:0] reg_div_do;
+
+    reg         reg_dat_we;
+    reg         reg_dat_re;
+    reg  [31:0] reg_dat_di;
+    wire [31:0] reg_dat_do;
+    wire        reg_dat_wait;
+
+    // =========================
+    // DUT
+    // =========================
+    simpleuart #(
+        .DEFAULT_DIV(3)
+    ) dut (
+        .clk(clk),
+        .resetn(resetn),
+
+        .ser_tx(ser_tx),
+        .ser_rx(ser_rx),
+
+        .reg_div_we(reg_div_we),
+        .reg_div_di(reg_div_di),
+        .reg_div_do(reg_div_do),
+
+        .reg_dat_we(reg_dat_we),
+        .reg_dat_re(reg_dat_re),
+        .reg_dat_di(reg_dat_di),
+        .reg_dat_do(reg_dat_do),
+        .reg_dat_wait(reg_dat_wait)
+    );
+
+    // =========================
+    // Clock 100 MHz
+    // =========================
+    initial begin
+        clk = 1'b0;
+        forever #5 clk = ~clk;
+    end
+
+    // =========================
+    // Tasks
+    // =========================
+    task write_div(input [31:0] v);
+    begin
+        @(posedge clk);
+        reg_div_di <= v;
+        reg_div_we <= 4'b1111;
+        @(posedge clk);
+        reg_div_we <= 4'b0000;
+    end
+    endtask
+
+    task write_tx(input [7:0] data);
+    begin
+        @(posedge clk);
+        reg_dat_di <= {24'd0, data};
+        reg_dat_we <= 1'b1;
+        @(posedge clk);
+        reg_dat_we <= 1'b0;
+    end
+    endtask
+
+    task clear_rx_valid;
+    begin
+        @(posedge clk);
+        reg_dat_re <= 1'b1;
+        @(posedge clk);
+        reg_dat_re <= 1'b0;
+    end
+    endtask
+
+    // gửi 1 byte UART vào ser_rx: start(0), 8 data bits LSB first, stop(1)
+    task uart_rx_send_byte(input [7:0] data);
+        integer i;
+    begin
+        // idle
+        ser_rx <= 1'b1;
+        repeat (2) @(posedge clk);
+
+        // start bit
+        ser_rx <= 1'b0;
+        repeat (4) @(posedge clk);   // DEFAULT_DIV=3 => mỗi bit ~4 chu kỳ
+
+        // data bits LSB first
+        for (i = 0; i < 8; i = i + 1) begin
+            ser_rx <= data[i];
+            repeat (4) @(posedge clk);
+        end
+
+        // stop bit
+        ser_rx <= 1'b1;
+        repeat (4) @(posedge clk);
+    end
+    endtask
+
+    // =========================
+    // Monitor
+    // =========================
+    initial begin
+        $display("time   rst tx rx wait reg_dat_do");
+        $monitor("%0t  %b   %b  %b   %b   0x%08X",
+                 $time, resetn, ser_tx, ser_rx, reg_dat_wait, reg_dat_do);
+    end
+
+    // =========================
+    // Test
+    // =========================
+    initial begin
+        resetn     = 1'b0;
+        ser_rx     = 1'b1;   // UART idle high
+
+        reg_div_we = 4'd0;
+        reg_div_di = 32'd0;
+        reg_dat_we = 1'b0;
+        reg_dat_re = 1'b0;
+        reg_dat_di = 32'd0;
+
+        // reset
+        repeat (5) @(posedge clk);
+        resetn = 1'b1;
+        repeat (2) @(posedge clk);
+
+        // đặt divider nhỏ cho mô phỏng nhanh
+        write_div(32'd3);
+
+        // =====================
+        // TEST TX
+        // =====================
+        $display("\n--- TEST TX: send 0x55 ---");
+        write_tx(8'h55);
+
+        wait (reg_dat_wait == 1'b1);
+        wait (reg_dat_wait == 1'b0);
+
+        $display("TX done");
+
+        // =====================
+        // TEST RX
+        // =====================
+        $display("\n--- TEST RX: receive 0xA5 ---");
+        uart_rx_send_byte(8'hA5);
+
+        repeat (6) @(posedge clk);
+
+        $display("RX reg_dat_do = 0x%08X", reg_dat_do);
+
+        if (reg_dat_do == 32'h0000_00A5)
+            $display("RX PASS");
+        else
+            $display("RX FAIL");
+
+        clear_rx_valid();
+        @(posedge clk);
+        $display("After clear, reg_dat_do = 0x%08X", reg_dat_do);
+
+        #50;
+        $finish;
+    end
+
+endmodule
+
+`default_nettype wire

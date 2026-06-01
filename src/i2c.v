@@ -1,376 +1,403 @@
-// =============================================================
-//  I2C Master – SCL perfectly symmetric (v3)
+`default_nettype none
+// ============================================================
+//  i2c_master.v — I2C Master, multi-byte TX/RX, hỗ trợ
+//  combined write/read với repeated-start
 //
-//  Fix so với v2:
-//  1. ST_RSTART: gộp step SCL=1+SDA=0 vào 1 tick (bỏ step SCL=1 riêng)
-//     → SCL không bị kéo dài 2×CLK_DIV tại repeated START
-//  2. ST_STOP: gộp SDA=0→SCL=1 vào 1 tick, SDA release riêng 1 tick
-//     → SCL không bị kéo dài 2×CLK_DIV tại STOP
-//  3. ST_READ phase=1 bit_i==8: đặt phase<=0 rõ ràng khi chuyển byte
-// =============================================================
-
-module I2C_Master #(
-    parameter CLK_DIV   = 135,
-    parameter MAX_BYTES = 8
+//  Hỗ trợ:
+//    1) Write only:
+//       [START][ADDR+W][TX...][STOP]
+//
+//    2) Read only (tx_len = 0):
+//       [START][ADDR+R][RX...][STOP]
+//
+//    3) Register read (rw=1, tx_len>0):
+//       [START][ADDR+W][TX...][REPEATED START][ADDR+R][RX...][STOP]
+//
+//  Clock: 27 MHz → I2C ~100 kHz (CLK_DIV=67)
+// ============================================================
+module i2c_master #(
+    parameter CLK_DIV = 67
 )(
-    input                           clk,
-    input                           rst,
+    input  wire         clk,
+    input  wire         resetn,
 
-    input                           start,
-    input                           rw,
-    input  [6:0]                    slave_addr,
-    input  [7:0]                    ctrl_byte,
-    input                           en_ctrl_byte,
-    input  [MAX_BYTES*8-1:0]        tx_payload,
-    input  [$clog2(MAX_BYTES):0]    byte_count,
+    input  wire         start,
+    input  wire         rw,           // 0=write, 1=read / combined read
+    input  wire [6:0]   addr,
+    input  wire [3:0]   tx_len,       // số byte TX (0..15)
+    input  wire [3:0]   rx_len,       // số byte RX (0..15)
 
-    output reg                      busy      = 0,
-    output reg                      nack_err  = 0,
-    output reg [MAX_BYTES*8-1:0]    rx_data   = 0,
-    output reg                      rx_valid  = 0,
+    input  wire [127:0] tx_buf,       // byte0=bits[127:120]
+    output reg  [127:0] rx_buf,       // byte0=bits[127:120]
 
-    output reg                      scl = 1,
-    inout                           sda
+    output reg          busy,
+    output reg          ack_err,
+
+    output wire         scl_oe,       // 1 -> kéo SCL xuống 0
+    output wire         sda_oe,       // 1 -> kéo SDA xuống 0
+    input  wire         sda_in
 );
 
-// ---------------------------------------------------------------
-// Open-drain SDA
-// ---------------------------------------------------------------
-reg sda_oe  = 0;
-reg sda_out = 1;
-assign sda  = (sda_oe & ~sda_out) ? 1'b0 : 1'bz;
-wire sda_in = sda;
-
-// ---------------------------------------------------------------
-// States
-// ---------------------------------------------------------------
-localparam ST_IDLE   = 4'd0,
-           ST_START  = 4'd1,
-           ST_RSTART = 4'd2,
-           ST_ADDR   = 4'd3,
-           ST_RADDR  = 4'd4,
-           ST_CTRL   = 4'd5,
-           ST_WRITE  = 4'd6,
-           ST_READ   = 4'd7,
-           ST_STOP   = 4'd8;
-
-// ---------------------------------------------------------------
-// Tick counter: CLK_DIV → 1, FSM fires on tick
-// ---------------------------------------------------------------
-reg [11:0] cnt = 1;
-wire       tick = (cnt == 1);
-
-always @(posedge clk) begin
-    if (rst)       cnt <= 1;
-    else if (tick) cnt <= CLK_DIV;
-    else           cnt <= cnt - 1;
-end
-
-// ---------------------------------------------------------------
-// FSM registers
-// ---------------------------------------------------------------
-reg [3:0]  state = ST_IDLE;
-reg        phase = 0;   // 0=SCL_LOW, 1=SCL_HIGH
-reg [3:0]  bit_i = 0;   // 0–7: data, 8: ACK slot
-reg [$clog2(MAX_BYTES):0] byte_i = 0;
-reg [2:0]  step  = 0;   // dùng cho START / RSTART / STOP
-
-reg [7:0] addr_w, addr_r;
-reg [7:0] ctrl_r;
-reg       en_ctrl_r, rw_r;
-reg [$clog2(MAX_BYTES):0] bcnt_r;
-reg [MAX_BYTES*8-1:0] payload_r;
-reg [7:0] tx_byte, rx_byte;
-
+// ── Helper: lấy byte idx từ flat bus ─────────────────────────
 function [7:0] get_byte;
-    input [$clog2(MAX_BYTES):0] idx;
-    integer k;
+    input [127:0] bus;
+    input [3:0]   idx;
     begin
-        get_byte = 0;
-        for (k = 0; k < MAX_BYTES; k = k+1)
-            if (k[$clog2(MAX_BYTES):0] == idx)
-                get_byte = payload_r[k*8 +: 8];
+        get_byte = bus[127 - (idx << 3) -: 8];
     end
 endfunction
 
-// ---------------------------------------------------------------
-// FSM
-// ---------------------------------------------------------------
-always @(posedge clk) begin
-    if (rst) begin
-        state <= ST_IDLE; phase <= 0; bit_i <= 0; byte_i <= 0;
-        step  <= 0; busy <= 0; nack_err <= 0; rx_valid <= 0;
-        scl <= 1; sda_oe <= 0; sda_out <= 1; rx_data <= 0;
-    end else if (tick) begin
+// ── Clock divider: 4 phase / bit ─────────────────────────────
+reg [6:0] clk_cnt;
+reg [1:0] phase;
+reg       tick;
 
-    rx_valid <= 0;
-
-    case (state)
-
-    // =========================================================
-    // IDLE
-    // =========================================================
-    ST_IDLE: begin
-        scl <= 1; sda_oe <= 0; phase <= 0; step <= 0;
-        if (start && !busy) begin
-            addr_w    <= {slave_addr, 1'b0};
-            addr_r    <= {slave_addr, 1'b1};
-            ctrl_r    <= ctrl_byte;
-            en_ctrl_r <= en_ctrl_byte;
-            rw_r      <= rw;
-            bcnt_r    <= byte_count;
-            payload_r <= tx_payload;
-            busy <= 1; nack_err <= 0; rx_data <= 0;
-            bit_i <= 0; byte_i <= 0;
-            state <= ST_START; step <= 0;
+always @(posedge clk or negedge resetn) begin
+    if (!resetn) begin
+        clk_cnt <= 7'd0;
+        phase   <= 2'd0;
+        tick    <= 1'b0;
+    end else if (busy) begin
+        tick <= 1'b0;
+        if (clk_cnt == CLK_DIV - 1) begin
+            clk_cnt <= 7'd0;
+            phase   <= phase + 2'd1;
+            tick    <= 1'b1;
+        end else begin
+            clk_cnt <= clk_cnt + 7'd1;
         end
+    end else begin
+        clk_cnt <= 7'd0;
+        phase   <= 2'd0;
+        tick    <= 1'b0;
     end
-
-    // =========================================================
-    // START condition  (3 ticks)
-    //
-    //   tick 0: SCL=1, SDA=1   bus free
-    //   tick 1: SCL=1, SDA=0   START: SDA falls while SCL=1
-    //   tick 2: SCL=0           SCL falls → enter data phase
-    //
-    // Sau tick 2: SCL=0, phase=0 → byte TX bắt đầu đúng pha
-    // =========================================================
-    ST_START: begin
-        case (step)
-        0: begin
-            scl <= 1; sda_out <= 1; sda_oe <= 0;
-            step <= 1;
-           end
-        1: begin
-            scl <= 1; sda_out <= 0; sda_oe <= 1;
-            step <= 2;
-           end
-        2: begin
-            scl <= 0;
-            tx_byte <= addr_w; bit_i <= 0; phase <= 0;
-            step <= 0; state <= ST_ADDR;
-           end
-        endcase
-    end
-
-    // =========================================================
-    // REPEATED START  (3 ticks)
-    //
-    // Vào từ: phase=1 của ACK (SCL=1, SDA released)
-    //
-    //   tick 0: SCL=0, SDA=1 (release)   SCL falls – bus còn giữ
-    //   tick 1: SCL=1, SDA=0             SCL rises, SDA falls → Sr
-    //   tick 2: SCL=0                    SCL falls → vào data phase
-    //
-    // Mỗi tick = đúng CLK_DIV cycles → không có tick nào SCL=1
-    // kéo dài 2×CLK_DIV.
-    //
-    // BUG CŨ: step 1 SCL=1 riêng + step 2 SCL=1+SDA=0 riêng
-    //         → SCL=1 kéo dài 2×CLK_DIV
-    // FIX: gộp SCL=1 và SDA=0 vào cùng 1 tick
-    // =========================================================
-ST_RSTART: begin
-    case (step)
-    // Step 0: Kết thúc ACK clock - kéo SCL xuống, giữ SDA
-    0: begin
-        scl <= 0; sda_oe <= 0;  // SCL falls, release SDA
-        step <= 1;
-       end
-    // Step 1: SDA lên high (chuẩn bị repeated start)  
-    1: begin
-        scl <= 0; sda_out <= 1; sda_oe <= 1;
-        step <= 2;
-       end
-    // Step 2: SCL lên + SDA vẫn high
-    2: begin
-        scl <= 1; sda_out <= 1; sda_oe <= 1;
-        step <= 3;
-       end
-    // Step 3: SDA xuống trong khi SCL=1 → Repeated START
-    3: begin
-        scl <= 1; sda_out <= 0; sda_oe <= 1;
-        step <= 4;
-       end
-    // Step 4: SCL xuống → vào data phase
-    4: begin
-        scl <= 0;
-        tx_byte <= addr_r; bit_i <= 0; phase <= 0;
-        step <= 0; state <= ST_RADDR;
-       end
-    endcase
 end
 
-    // =========================================================
-    // BYTE TX: ST_ADDR / ST_RADDR / ST_CTRL / ST_WRITE
-    //
-    // Mỗi bit = 2 ticks đúng CLK_DIV:
-    //   phase=0 (SCL=0): drive SDA[7-bit_i]
-    //   phase=1 (SCL=1): slave samples; bit_i++
-    //
-    // ACK slot (bit_i=8):
-    //   phase=0 (SCL=0): release SDA
-    //   phase=1 (SCL=1): sample sda_in → dispatch
-    //
-    // SCL waveform: ‾‾|__|‾‾|__|‾‾|__ (đều tuyệt đối)
-    // =========================================================
-    ST_ADDR, ST_RADDR, ST_CTRL, ST_WRITE: begin
-        if (phase == 0) begin
-            scl <= 0;
-            if (bit_i < 8) begin
-                sda_out <= tx_byte[7 - bit_i];
-                sda_oe  <= 1;
-            end else begin
-                sda_oe <= 0;    // release for ACK
-            end
-            phase <= 1;
-        end else begin
-            scl <= 1;
-            if (bit_i < 8) begin
-                bit_i <= bit_i + 1;
-                phase <= 0;
-            end else begin
-                // ACK slot: sample sda_in
-                if (sda_in) nack_err <= 1;
-                bit_i <= 0;
-                phase <= 0;     // next tick: SCL=0 trong state mới
+// ── FSM states ───────────────────────────────────────────────
+localparam S_IDLE       = 4'd0,
+           S_START      = 4'd1,
+           S_ADDR       = 4'd2,
+           S_ADDR_ACK   = 4'd3,
+           S_WRITE      = 4'd4,
+           S_WRITE_ACK  = 4'd5,
+           S_RESTART    = 4'd6,
+           S_READ       = 4'd7,
+           S_READ_ACK1  = 4'd8,
+           S_READ_ACK2  = 4'd9,
+           S_STOP       = 4'd10,
+           S_READ_NACK  = 4'd11;
+// ── Registers ────────────────────────────────────────────────
+reg [3:0]   state;
+reg [2:0]   bit_idx;
+reg [3:0]   byte_idx;
 
-                case (state)
-                ST_ADDR: begin
-                    if (en_ctrl_r) begin
-                        tx_byte <= ctrl_r;
-                        state   <= ST_CTRL;
-                    end else if (rw_r) begin
-                        state <= ST_RSTART;
-                    end else begin
-                        tx_byte <= get_byte(0);
-                        byte_i  <= 0;
-                        state   <= ST_WRITE;
-                    end
-                   end
-                ST_CTRL: begin
-                    if (rw_r) begin
-                        state <= ST_RSTART;
-                    end else begin
-                        tx_byte <= get_byte(0);
-                        byte_i  <= 0;
-                        state   <= ST_WRITE;
-                    end
-                   end
-                ST_RADDR: begin
-                    byte_i <= 0;
-                    state  <= ST_READ;
-                   end
-                ST_WRITE: begin
-                    if (byte_i + 1 < bcnt_r) begin
-                        byte_i  <= byte_i + 1;
-                        tx_byte <= get_byte(byte_i + 1);
-                    end else begin
-                        state <= ST_STOP;
-                    end
-                   end
-                default: state <= ST_STOP;
-                endcase
+reg         rw_r;
+reg [6:0]   addr_r;
+reg [3:0]   tx_len_r;
+reg [3:0]   rx_len_r;
+reg [127:0] tx_buf_r;
+
+// phase hiện tại đang gửi địa chỉ theo hướng nào
+reg         addr_phase_rw;
+
+// cờ cho combined transaction:
+// rw=1 và tx_len>0 => write subaddr trước rồi repeated-start read
+reg         combined_read;
+
+reg scl_oe_r, sda_oe_r;
+assign scl_oe = scl_oe_r;
+assign sda_oe = sda_oe_r;
+
+// Byte đang gửi
+wire [7:0] cur_tx_byte = get_byte(tx_buf_r, byte_idx);
+
+// vị trí bit trong rx_buf
+wire [7:0] rx_bit_pos = 8'd127 - {byte_idx, 3'b000} - (3'd7 - bit_idx);
+
+always @(posedge clk or negedge resetn) begin
+    if (!resetn) begin
+        state         <= S_IDLE;
+        scl_oe_r      <= 1'b0;
+        sda_oe_r      <= 1'b0;
+        busy          <= 1'b0;
+        ack_err       <= 1'b0;
+        bit_idx       <= 3'd7;
+        byte_idx      <= 4'd0;
+        rw_r          <= 1'b0;
+        addr_r        <= 7'd0;
+        tx_len_r      <= 4'd0;
+        rx_len_r      <= 4'd0;
+        tx_buf_r      <= 128'd0;
+        rx_buf        <= 128'd0;
+        addr_phase_rw <= 1'b0;
+        combined_read <= 1'b0;
+    end else begin
+        case (state)
+
+        // =====================================================
+        S_IDLE: begin
+            scl_oe_r <= 1'b0;
+            sda_oe_r <= 1'b0;
+            busy     <= 1'b0;
+
+            if (start) begin
+                busy          <= 1'b1;
+                ack_err       <= 1'b0;
+                rw_r          <= rw;
+                addr_r        <= addr;
+                tx_len_r      <= tx_len;
+                rx_len_r      <= rx_len;
+                tx_buf_r      <= tx_buf;
+                rx_buf        <= 128'd0;
+                bit_idx       <= 3'd7;
+                byte_idx      <= 4'd0;
+                combined_read <= rw && (tx_len != 0);
+
+                // Nếu combined read thì pha địa chỉ đầu là write
+                // nếu không thì dùng rw trực tiếp
+                addr_phase_rw <= (rw && (tx_len != 0)) ? 1'b0 : rw;
+
+                state <= S_START;
             end
         end
-    end
 
-    // =========================================================
-    // BYTE RX: ST_READ
-    //
-    // Mỗi bit = 2 ticks:
-    //   phase=0 (SCL=0): release SDA (slave drives)
-    //   phase=1 (SCL=1): sample sda_in → shift vào rx_byte
-    //
-    // ACK/NACK slot (bit_i=8):
-    //   phase=0 (SCL=0): drive ACK (nếu còn byte) hoặc NACK
-    //   phase=1 (SCL=1): hold → store byte, chuyển next/STOP
-    // =========================================================
-    ST_READ: begin
-        if (phase == 0) begin
-            scl <= 0;
-            if (bit_i < 8) begin
-                sda_oe <= 0;                        // slave drives SDA
-            end else begin
-                if (byte_i + 1 >= bcnt_r) begin
-                    sda_out <= 1; sda_oe <= 0;      // NACK: release
-                end else begin
-                    sda_out <= 0; sda_oe <= 1;      // ACK: pull low
-                end
+        // =====================================================
+        // START: khi SCL đang thả cao, kéo SDA xuống
+        S_START: begin
+            if (tick && phase == 2'd2)
+                sda_oe_r <= 1'b1;
+
+            if (tick && phase == 2'd3) begin
+                scl_oe_r <= 1'b1;   // kéo SCL xuống để bắt đầu shift bit
+                bit_idx  <= 3'd7;
+                state    <= S_ADDR;
             end
-            phase <= 1;
-        end else begin
-            scl <= 1;
-            if (bit_i < 8) begin
-                rx_byte <= {rx_byte[6:0], sda_in};  // MSB first
-                bit_i   <= bit_i + 1;
-                phase   <= 0;
-            end else begin
-                // Store completed byte
-                begin : store
-                    integer k;
-                    for (k = 0; k < MAX_BYTES; k = k+1)
-                        if (k[$clog2(MAX_BYTES):0] == byte_i)
-                            rx_data[k*8 +: 8] <= rx_byte;
-                end
-                bit_i <= 0;
-                phase <= 0;
-                if (byte_i + 1 < bcnt_r) begin
-                    byte_i <= byte_i + 1;
-                    // state vẫn ST_READ, phase=0 → tiếp tục nhận
+        end
+
+        // =====================================================
+        // Gửi 8 bit địa chỉ + rw
+        // bit7..1 = addr[6:0], bit0 = addr_phase_rw
+        S_ADDR: begin
+            if (tick && phase == 2'd0)
+                sda_oe_r <= (bit_idx > 0) ? ~addr_r[bit_idx-1] : ~addr_phase_rw;
+
+            if (tick && phase == 2'd1)
+                scl_oe_r <= 1'b0;   // nhả SCL lên cao
+
+            if (tick && phase == 2'd3) begin
+                scl_oe_r <= 1'b1;   // kéo SCL xuống
+                if (bit_idx == 0) begin
+                    sda_oe_r <= 1'b0; // release SDA cho ACK bit
+                    state    <= S_ADDR_ACK;
                 end else begin
-                    rx_valid <= 1;
-                    state    <= ST_STOP;
+                    bit_idx <= bit_idx - 3'd1;
                 end
             end
         end
-    end
 
-    // =========================================================
-    // STOP condition  (4 ticks)
-    //
-    // Vào từ: phase=0 của byte TX/RX (SCL đang =0 từ dispatch)
-    //
-    //   tick 0: SCL=0, SDA=0   setup SDA low
-    //   tick 1: SCL=1, SDA=0   SCL rises (SDA still low)
-    //   tick 2: SCL=1, SDA=1   SDA rises while SCL=1 → STOP
-    //   tick 3: tBUF hold      bus free
-    //   tick 4: → IDLE
-    //
-    // BUG CŨ: tick 1 SCL=1 riêng + tick 2 sda_oe=0 riêng (SCL vẫn=1)
-    //         → SCL=1 kéo dài 2×CLK_DIV
-    // FIX: SCL=1+SDA=0 cùng tick 1; SDA release tick 2 (SCL vẫn=1 → STOP)
-    //      Đây là yêu cầu protocol: SCL=1 trong cả tick 1 và 2 là ĐÚNG
-    //      vì STOP cần SDA rise while SCL=1. Không thể tránh.
-    //      Nhưng đây là vùng đặc biệt (STOP), không phải data bit.
-    // =========================================================
-    ST_STOP: begin
-        case (step)
-        0: begin
-            scl <= 0; sda_out <= 0; sda_oe <= 1;   // setup SDA=0
-            step <= 1;
-           end
-        1: begin
-            scl <= 1; sda_out <= 0; sda_oe <= 1;   // SCL rises, SDA=0
-            step <= 2;
-           end
-        2: begin
-            scl <= 1; sda_oe <= 0;                  // SDA rises → STOP
-            step <= 3;
-           end
-        3: begin
-            scl <= 1;                               // tBUF hold
-            step <= 4;
-           end
-        4: begin
-            busy  <= 0;
-            state <= ST_IDLE;
-            step  <= 0;
-           end
+        // =====================================================
+        // ACK sau address
+        S_ADDR_ACK: begin
+            if (tick && phase == 2'd1)
+                scl_oe_r <= 1'b0;
+
+            if (tick && phase == 2'd2)
+                ack_err <= sda_in;
+
+            if (tick && phase == 2'd3) begin
+                scl_oe_r <= 1'b1;
+                bit_idx  <= 3'd7;
+                byte_idx <= 4'd0;
+
+                if (sda_in) begin
+                    state <= S_STOP;
+                end else begin
+                    if (addr_phase_rw) begin
+                        // address+R xong thì đi vào đọc
+                        state <= S_READ;
+                    end else begin
+                        // address+W xong:
+                        // - nếu còn tx data thì ghi tiếp
+                        // - nếu combined read và tx_len=0 thì restart luôn
+                        // - nếu write only mà tx_len=0 thì stop
+                        if (tx_len_r != 0)
+                            state <= S_WRITE;
+                        else if (combined_read) begin
+                            addr_phase_rw <= 1'b1;
+                            state         <= S_RESTART;
+                        end else
+                            state <= S_STOP;
+                    end
+                end
+            end
+        end
+
+        // =====================================================
+        // Ghi từng byte TX
+        S_WRITE: begin
+            if (tick && phase == 2'd0)
+                sda_oe_r <= ~cur_tx_byte[bit_idx];
+
+            if (tick && phase == 2'd1)
+                scl_oe_r <= 1'b0;
+
+            if (tick && phase == 2'd3) begin
+                scl_oe_r <= 1'b1;
+                if (bit_idx == 0) begin
+                    sda_oe_r <= 1'b0; // release ACK bit
+                    state    <= S_WRITE_ACK;
+                end else begin
+                    bit_idx <= bit_idx - 3'd1;
+                end
+            end
+        end
+
+        // =====================================================
+        // ACK sau mỗi byte write
+        S_WRITE_ACK: begin
+            if (tick && phase == 2'd1)
+                scl_oe_r <= 1'b0;
+
+            if (tick && phase == 2'd2)
+                ack_err <= sda_in;
+
+            if (tick && phase == 2'd3) begin
+                scl_oe_r <= 1'b1;
+                bit_idx  <= 3'd7;
+
+                if (sda_in) begin
+                    state <= S_STOP;
+                end else if (byte_idx == tx_len_r - 1) begin
+                    // đã ghi xong byte cuối
+                    if (combined_read) begin
+                        addr_phase_rw <= 1'b1;
+                        state         <= S_RESTART;
+                    end else begin
+                        state <= S_STOP;
+                    end
+                end else begin
+                    byte_idx <= byte_idx + 4'd1;
+                    state    <= S_WRITE;
+                end
+            end
+        end
+
+        // =====================================================
+        // REPEATED START
+        // Bắt đầu từ trạng thái bus đang SCL=0.
+        // Thả SDA, thả SCL lên cao, rồi kéo SDA xuống lại.
+        S_RESTART: begin
+            // Đảm bảo bus đang ở trạng thái SDA=1, SCL=1 trước khi tạo repeated START
+            if (tick && phase == 2'd0) begin
+                sda_oe_r <= 1'b0;   // nhả SDA
+                scl_oe_r <= 1'b0;   // nhả SCL
+            end
+
+            if (tick && phase == 2'd2)
+                sda_oe_r <= 1'b1;   // SDA high -> low khi SCL high
+
+            if (tick && phase == 2'd3) begin
+                scl_oe_r <= 1'b1;   // kéo SCL xuống để bắt đầu shift địa chỉ mới
+                bit_idx  <= 3'd7;
+                state    <= S_ADDR;
+            end
+        end
+
+        S_READ: begin
+            if (tick && phase == 2'd0)
+                sda_oe_r <= 1'b0;
+
+            if (tick && phase == 2'd1)
+                scl_oe_r <= 1'b0;
+
+            if (tick && phase == 2'd2)
+                rx_buf[rx_bit_pos] <= sda_in;
+
+            if (tick && phase == 2'd3) begin
+                scl_oe_r <= 1'b1;
+                if (bit_idx == 0) begin
+                    bit_idx <= 3'd7;
+                    state   <= S_READ_NACK;
+                end else
+                    bit_idx <= bit_idx - 3'd1;
+            end
+        end
+
+        // setup ACK/NACK khi SCL đang thấp
+        S_READ_ACK1: begin
+            if (tick && phase == 2'd0) begin
+                if (byte_idx < rx_len_r - 1)
+                    sda_oe_r <= 1'b1;   // ACK
+                else
+                    sda_oe_r <= 1'b0;   // NACK
+            end
+
+            if (tick && phase == 2'd1)
+                scl_oe_r <= 1'b0;       // cho SCL lên cao để slave thấy ACK/NACK
+
+            if (tick && phase == 2'd3) begin
+                scl_oe_r <= 1'b1;       // kéo SCL xuống lại
+                state    <= S_READ_ACK2;
+            end
+        end
+
+        // giữ ACK/NACK đủ lâu, rồi mới chuyển state
+        S_READ_ACK2: begin
+            if (tick && phase == 2'd0) begin
+                if (byte_idx == rx_len_r - 1) begin
+                    state <= S_STOP;
+                end else begin
+                    sda_oe_r <= 1'b0;   // nhả SDA sau khi ACK xong
+                    byte_idx <= byte_idx + 4'd1;
+                    state    <= S_READ;
+                end
+            end
+        end
+        S_READ_NACK: begin
+            if (tick && phase == 2'd0)
+                sda_oe_r <= (byte_idx < rx_len_r - 1) ? 1'b1 : 1'b0;
+
+            if (tick && phase == 2'd1)
+                scl_oe_r <= 1'b0;
+
+            if (tick && phase == 2'd3) begin
+                scl_oe_r <= 1'b1;
+                sda_oe_r <= 1'b0;
+                if (byte_idx == rx_len_r - 1)
+                    state <= S_STOP;
+                else begin
+                    byte_idx <= byte_idx + 4'd1;
+                    state <= S_READ;
+                end
+            end
+        end
+
+
+        // =====================================================
+        // STOP: SDA low -> high khi SCL high
+        S_STOP: begin
+            if (tick && phase == 2'd0)
+                sda_oe_r <= 1'b1;
+
+            if (tick && phase == 2'd1)
+                scl_oe_r <= 1'b0;
+
+            if (tick && phase == 2'd2)
+                sda_oe_r <= 1'b0;
+
+            if (tick && phase == 2'd3) begin
+                state <= S_IDLE;
+                busy  <= 1'b0;
+            end
+        end
+
+        default: begin
+            state <= S_IDLE;
+        end
+
         endcase
     end
-
-    endcase
-    end // tick
 end
 
 endmodule
+`default_nettype wire
